@@ -70,6 +70,22 @@ function pitchToY(pitch) {
   return baseY - (pitch - 60) * 6;
 }
 
+// --- Helper function to draw rounded rectangles ---
+function roundedRect(x, y, w, h, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + w - radius, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+  ctx.lineTo(x + w, y + h - radius);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+  ctx.lineTo(x + radius, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+  ctx.fill();
+}
+
 // --- Timing ---
 let startTime = performance.now();
 let pausedTime = 0;
@@ -120,7 +136,7 @@ function draw() {
     const h = 20;
 
     ctx.fillStyle = note.color;
-    ctx.fillRect(x, y, w, h);
+    roundedRect(x, y, w, h, 6);
 
     ctx.fillStyle = "#000";
     ctx.font = "12px sans-serif";
