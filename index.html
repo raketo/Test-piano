@@ -5,7 +5,7 @@
   <style>
     body {
       margin: 0;
-      background: #0f766e;
+      background: white;
       overflow: hidden;
       font-family: sans-serif;
     }
@@ -122,7 +122,7 @@ function draw() {
     ctx.fillStyle = note.color;
     ctx.fillRect(x, y, w, h);
 
-    ctx.fillStyle = "white";
+    ctx.fillStyle = "#000";
     ctx.font = "12px sans-serif";
     ctx.fillText(note.label, x + 5, y + 14);
   });
