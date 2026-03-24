@@ -12,14 +12,32 @@
     canvas {
       display: block;
     }
+    #resetBtn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #22c55e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 10;
+    }
+    #resetBtn:hover {
+      background-color: #16a34a;
+    }
   </style>
 </head>
 <body>
+<button id="resetBtn">Reset</button>
 <canvas id="c"></canvas>
 
 <script>
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
+const resetBtn = document.getElementById("resetBtn");
 
 function resize() {
   canvas.width = window.innerWidth;
@@ -47,6 +65,12 @@ function pitchToY(pitch) {
 
 // --- Timing ---
 let startTime = performance.now();
+
+function resetAnimation() {
+  startTime = performance.now();
+}
+
+resetBtn.addEventListener("click", resetAnimation);
 
 function draw() {
   const now = (performance.now() - startTime) / 1000;
