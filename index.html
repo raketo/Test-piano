@@ -1,12 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Piano</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      margin: 0;
+      background: #0f766e;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+    canvas {
+      display: block;
+    }
+  </style>
 </head>
 <body>
-    <h1>Welcome to Test Piano</h1>
-    <p>This is a basic HTML file.</p>
+<canvas id="c"></canvas>
+
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resize);
+resize();
+
+// --- Fake notes ---
+const notes = [
+  { pitch: 60, start: 0, duration: 1, color: "#22c55e", label: "C" },
+  { pitch: 62, start: 1, duration: 1, color: "#f59e0b", label: "D" },
+  { pitch: 64, start: 2, duration: 1, color: "#8b5cf6", label: "E" },
+  { pitch: 65, start: 3, duration: 1, color: "#3b82f6", label: "F" },
+  { pitch: 67, start: 4, duration: 2, color: "#ef4444", label: "G" },
+];
+
+// --- Mapping ---
+const pixelsPerSecond = 120;
+const baseY = 200;
+
+function pitchToY(pitch) {
+  return baseY - (pitch - 60) * 6;
+}
+
+// --- Timing ---
+let startTime = performance.now();
+
+function draw() {
+  const now = (performance.now() - startTime) / 1000;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // --- Staff lines ---
+  ctx.strokeStyle = "#000";
+  for (let i = 0; i < 5; i++) {
+    const y = baseY - i * 12;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
+
+  // --- Notes ---
+  notes.forEach(note => {
+    const x = canvas.width / 3 + (note.start - now) * pixelsPerSecond;
+    const y = pitchToY(note.pitch);
+    const w = note.duration * pixelsPerSecond;
+    const h = 20;
+
+    ctx.fillStyle = note.color;
+    ctx.fillRect(x, y, w, h);
+
+    ctx.fillStyle = "white";
+    ctx.font = "12px sans-serif";
+    ctx.fillText(note.label, x + 5, y + 14);
+  });
+
+  // --- Playhead line ---
+  ctx.strokeStyle = "lime";
+  ctx.beginPath();
+  ctx.moveTo(canvas.width / 3, 0);
+  ctx.lineTo(canvas.width / 3, canvas.height);
+  ctx.stroke();
+
+  requestAnimationFrame(draw);
+}
+
+draw();
+</script>
 </body>
 </html>
