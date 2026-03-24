@@ -12,10 +12,9 @@
     canvas {
       display: block;
     }
-    #resetBtn {
+    #resetBtn, #pauseBtn {
       position: absolute;
       top: 20px;
-      left: 20px;
       padding: 10px 20px;
       font-size: 16px;
       background-color: #22c55e;
@@ -25,19 +24,27 @@
       cursor: pointer;
       z-index: 10;
     }
-    #resetBtn:hover {
+    #resetBtn {
+      left: 20px;
+    }
+    #pauseBtn {
+      left: 120px;
+    }
+    #resetBtn:hover, #pauseBtn:hover {
       background-color: #16a34a;
     }
   </style>
 </head>
 <body>
 <button id="resetBtn">Reset</button>
+<button id="pauseBtn">Pause</button>
 <canvas id="c"></canvas>
 
 <script>
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 const resetBtn = document.getElementById("resetBtn");
+const pauseBtn = document.getElementById("pauseBtn");
 
 function resize() {
   canvas.width = window.innerWidth;
@@ -65,15 +72,33 @@ function pitchToY(pitch) {
 
 // --- Timing ---
 let startTime = performance.now();
+let pausedTime = 0;
+let isPaused = false;
 
 function resetAnimation() {
   startTime = performance.now();
+  pausedTime = 0;
+  isPaused = false;
+  pauseBtn.textContent = "Pause";
+}
+
+function togglePause() {
+  if (isPaused) {
+    startTime = performance.now() - pausedTime * 1000;
+    isPaused = false;
+    pauseBtn.textContent = "Pause";
+  } else {
+    pausedTime = (performance.now() - startTime) / 1000;
+    isPaused = true;
+    pauseBtn.textContent = "Resume";
+  }
 }
 
 resetBtn.addEventListener("click", resetAnimation);
+pauseBtn.addEventListener("click", togglePause);
 
 function draw() {
-  const now = (performance.now() - startTime) / 1000;
+  const now = isPaused ? pausedTime : (performance.now() - startTime) / 1000;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
