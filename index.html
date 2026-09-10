@@ -50,13 +50,52 @@
       color: #333;
       font-weight: bold;
     }
-  </style>
+    #speedSelector {
+      padding: 10px 15px;
+      font-size: 16px;
+      background-color: #8b5cf6;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #speedSelector:hover {
+      background-color: #7c3aed;
+    }
+    .speed-label {
+      font-size: 14px;
+      color: #333;
+      font-weight: bold;
+    }
+    </style>
 </head>
 <body>
 <div class="controls">
   <span class="track-label">Track:</span>
   <select id="trackSelector">
     <option value="">Loading tracks...</option>
+  </select>
+  <span class="speed-label" style="margin-left: 20px;">Speed:</span>
+  <select id="speedSelector">
+    <option value="30">30%</option>
+    <option value="35">35%</option>
+    <option value="40">40%</option>
+    <option value="45">45%</option>
+    <option value="50">50%</option>
+    <option value="55">55%</option>
+    <option value="60">60%</option>
+    <option value="65">65%</option>
+    <option value="70">70%</option>
+    <option value="75">75%</option>
+    <option value="80">80%</option>
+    <option value="85">85%</option>
+    <option value="90">90%</option>
+    <option value="95">95%</option>
+    <option value="100" selected>100%</option>
+    <option value="105">105%</option>
+    <option value="110">110%</option>
+    <option value="115">115%</option>
+    <option value="120">120%</option>
   </select>
   <button id="resetBtn">Reset</button>
   <button id="pauseBtn">Pause</button>
@@ -69,6 +108,10 @@ const ctx = canvas.getContext("2d");
 const resetBtn = document.getElementById("resetBtn");
 const pauseBtn = document.getElementById("pauseBtn");
 const trackSelector = document.getElementById("trackSelector");
+const speedSelector = document.getElementById("speedSelector");
+
+// --- State ---
+let speedMultiplier = 1.0;
 
 function resize() {
   canvas.width = window.innerWidth;
@@ -126,6 +169,17 @@ trackSelector.addEventListener("change", (e) => {
   selectTrack(e.target.value);
 });
 
+speedSelector.addEventListener("change", (e) => {
+  const oldSpeedMultiplier = speedMultiplier;
+  speedMultiplier = parseInt(e.target.value) / 100;
+  
+  // Adjust startTime to maintain continuity when speed changes
+  if (!isPaused) {
+    const currentEffectiveTime = ((performance.now() - startTime) / 1000) * oldSpeedMultiplier;
+    startTime = performance.now() - (currentEffectiveTime / speedMultiplier) * 1000;
+  }
+});
+
 // --- Mapping ---
 const pixelsPerSecond = 120;
 const baseY = 200;
@@ -164,11 +218,11 @@ function resetAnimation() {
 
 function togglePause() {
   if (isPaused) {
-    startTime = performance.now() - pausedTime * 1000;
+    startTime = performance.now() - (pausedTime / speedMultiplier) * 1000;
     isPaused = false;
     pauseBtn.textContent = "Pause";
   } else {
-    pausedTime = (performance.now() - startTime) / 1000;
+    pausedTime = ((performance.now() - startTime) / 1000) * speedMultiplier;
     isPaused = true;
     pauseBtn.textContent = "Resume";
   }
@@ -178,7 +232,13 @@ resetBtn.addEventListener("click", resetAnimation);
 pauseBtn.addEventListener("click", togglePause);
 
 function draw() {
-  const now = isPaused ? pausedTime : (performance.now() - startTime) / 1000;
+  let now;
+  if (isPaused) {
+    now = pausedTime;
+  } else {
+    const realTime = (performance.now() - startTime) / 1000;
+    now = realTime * speedMultiplier;
+  }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
