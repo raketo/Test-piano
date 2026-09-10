@@ -12,9 +12,16 @@
     canvas {
       display: block;
     }
-    #resetBtn, #pauseBtn {
+    .controls {
       position: absolute;
       top: 20px;
+      left: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      z-index: 10;
+    }
+    button {
       padding: 10px 20px;
       font-size: 16px;
       background-color: #22c55e;
@@ -22,22 +29,38 @@
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      z-index: 10;
     }
-    #resetBtn {
-      left: 20px;
-    }
-    #pauseBtn {
-      left: 120px;
-    }
-    #resetBtn:hover, #pauseBtn:hover {
+    button:hover {
       background-color: #16a34a;
+    }
+    #trackSelector {
+      padding: 10px 15px;
+      font-size: 16px;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #trackSelector:hover {
+      background-color: #2563eb;
+    }
+    .track-label {
+      font-size: 14px;
+      color: #333;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
-<button id="resetBtn">Reset</button>
-<button id="pauseBtn">Pause</button>
+<div class="controls">
+  <span class="track-label">Track:</span>
+  <select id="trackSelector">
+    <option value="">Loading tracks...</option>
+  </select>
+  <button id="resetBtn">Reset</button>
+  <button id="pauseBtn">Pause</button>
+</div>
 <canvas id="c"></canvas>
 
 <script>
@@ -45,6 +68,7 @@ const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 const resetBtn = document.getElementById("resetBtn");
 const pauseBtn = document.getElementById("pauseBtn");
+const trackSelector = document.getElementById("trackSelector");
 
 function resize() {
   canvas.width = window.innerWidth;
@@ -53,14 +77,54 @@ function resize() {
 window.addEventListener("resize", resize);
 resize();
 
-// --- Fake notes ---
-const notes = [
-  { pitch: 60, start: 0, duration: 1, color: "#22c55e", label: "C" },
-  { pitch: 62, start: 1, duration: 1, color: "#f59e0b", label: "D" },
-  { pitch: 64, start: 2, duration: 1, color: "#8b5cf6", label: "E" },
-  { pitch: 65, start: 3, duration: 1, color: "#3b82f6", label: "F" },
-  { pitch: 67, start: 4, duration: 2, color: "#ef4444", label: "G" },
-];
+// --- Track data ---
+let allTracks = [];
+let fingerColors = {};
+let notes = [];
+
+// Load tracks from JSON file
+async function loadTracks() {
+  try {
+    const response = await fetch("tracks.json");
+    const data = await response.json();
+    fingerColors = data.fingers;
+    allTracks = data.tracks;
+    populateTrackSelector();
+    if (allTracks.length > 0) {
+      trackSelector.value = allTracks[0].id;
+      selectTrack(allTracks[0].id);
+    }
+  } catch (error) {
+    console.error("Error loading tracks:", error);
+  }
+}
+
+// Helper function to get color from finger number
+function getFingerColor(finger) {
+  return fingerColors[finger]?.color || "#999";
+}
+
+function populateTrackSelector() {
+  trackSelector.innerHTML = "";
+  allTracks.forEach(track => {
+    const option = document.createElement("option");
+    option.value = track.id;
+    option.textContent = track.name;
+    trackSelector.appendChild(option);
+  });
+}
+
+function selectTrack(trackId) {
+  const selectedTrack = allTracks.find(t => t.id === trackId);
+  if (selectedTrack) {
+    notes = [...selectedTrack.notes];
+    resetAnimation();
+  }
+}
+
+trackSelector.addEventListener("change", (e) => {
+  selectTrack(e.target.value);
+});
 
 // --- Mapping ---
 const pixelsPerSecond = 120;
@@ -135,7 +199,7 @@ function draw() {
     const w = note.duration * pixelsPerSecond;
     const h = 20;
 
-    ctx.fillStyle = note.color;
+    ctx.fillStyle = getFingerColor(note.finger);
     roundedRect(x, y, w, h, 6);
 
     ctx.fillStyle = "#000";
@@ -153,6 +217,8 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
+// Load tracks and start animation
+loadTracks();
 draw();
 </script>
 </body>
