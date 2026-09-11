@@ -35,6 +35,23 @@
       {"pitch":71,"start":9.75,"duration":0.5,"finger":3,"label":"B"}
     ]
   },
+  {"id":"two_raven_part3_rh","name":"Two raven - part 3 - RH" ,"notes":[
+      {"pitch":62,"start":2.66,"duration":0.66,"finger":1,"label":"D"},
+      {"pitch":62,"start":3.33,"duration":0.66,"finger":1,"label":"D"},
+      
+      {"pitch":62,"start":4.66,"duration":0.66,"finger":1,"label":"D"},
+      {"pitch":60,"start":5.33,"duration":0.66,"finger":1,"label":"C"},
+
+      {"pitch":62,"start":6.66,"duration":0.33,"finger":1,"label":"D"},
+      {"pitch":64,"start":7,"duration":0.33,"finger":1,"label":"E"},
+      {"pitch":65,"start":7.33,"duration":0.33,"finger":1,"label":"F"},
+      {"pitch":69,"start":7.66,"duration":0.33,"finger":1,"label":"A"},
+
+      {"pitch":62,"start":8.66,"duration":1.33,"finger":1,"label":"D"}
+
+
+    ]
+  },
     {
       "id": "track1",
       "name": "Simple Scale",
