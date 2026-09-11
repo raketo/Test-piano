@@ -210,7 +210,8 @@ let pausedTime = 0;
 let isPaused = false;
 
 function resetAnimation() {
-  startTime = performance.now();
+  // Start 2 seconds before 0 to give player preparation time
+  startTime = performance.now() - (2 / speedMultiplier) * 1000;
   pausedTime = 0;
   isPaused = false;
   pauseBtn.textContent = "Pause";
@@ -230,6 +231,9 @@ function togglePause() {
 
 resetBtn.addEventListener("click", resetAnimation);
 pauseBtn.addEventListener("click", togglePause);
+
+// Tap on canvas to pause/resume
+canvas.addEventListener("click", togglePause);
 
 function draw() {
   let now;

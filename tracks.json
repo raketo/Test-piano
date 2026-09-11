@@ -7,6 +7,34 @@
     "5": { "name": "Pinky", "color": "#ef4444" }
   },
   "tracks": [
+    {"id":"faded_RH","name":"Faded - Right Hand","notes":[
+      {"pitch":67,"start":0,"duration":0.5,"finger":1,"label":"G"},
+      {"pitch":67,"start":0.5,"duration":0.5,"finger":1,"label":"G"},
+      {"pitch":67,"start":1,"duration":0.5,"finger":1,"label":"G"},
+      {"pitch":71,"start":1.5,"duration":0.5,"finger":2,"label":"B"},
+      {"pitch":76,"start":2,"duration":0.5,"finger":5,"label":"E"},
+      {"pitch":76,"start":2.5,"duration":0.5,"finger":5,"label":"E"},
+      {"pitch":76,"start":3,"duration":0.5,"finger":5,"label":"E"},
+      {"pitch":74,"start":3.5,"duration":0.5,"finger":4,"label":"D"},
+      {"pitch":71,"start":4,"duration":0.5,"finger":2,"label":"B"},
+      {"pitch":71,"start":4.5,"duration":0.5,"finger":2,"label":"B"},
+      {"pitch":71,"start":5,"duration":0.5,"finger":2,"label":"B"},
+      {"pitch":71,"start":5.5,"duration":0.5,"finger":2,"label":"B"},
+      {"pitch":66,"start":6,"duration":0.5,"finger":2,"label":"F#"},
+      {"pitch":66,"start":6.5,"duration":0.5,"finger":2,"label":"F#"},
+      {"pitch":66,"start":7,"duration":0.5,"finger":2,"label":"F#"},
+      {"pitch":64,"start":7.5,"duration":0.5,"finger":4,"label":"E"},
+
+      {"pitch":67,"start":8,"duration":0.25,"finger":1,"label":"G"},
+      {"pitch":67,"start":8.25,"duration":0.25,"finger":1,"label":"G"},
+      {"pitch":64,"start":8.5,"duration":0.25,"finger":2,"label":"E"},
+      {"pitch":67,"start":8.75,"duration":0.25,"finger":1,"label":"G"},
+      {"pitch":64,"start":9,"duration":0.25,"finger":2,"label":"E"},
+      {"pitch":67,"start":9.25,"duration":0.25,"finger":1,"label":"G"},
+      {"pitch":69,"start":9.5,"duration":0.25,"finger":2,"label":"A"},
+      {"pitch":71,"start":9.75,"duration":0.5,"finger":3,"label":"B"}
+    ]
+  },
     {
       "id": "track1",
       "name": "Simple Scale",
