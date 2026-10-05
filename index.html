@@ -5,7 +5,7 @@
   <style>
     body {
       margin: 0;
-      background: white;
+      background: #f3f4f6;
       overflow: hidden;
       font-family: sans-serif;
     }
@@ -194,11 +194,20 @@ speedSelector.addEventListener("change", (e) => {
 });
 
 // --- Mapping ---
-const pixelsPerSecond = 120;
+const visualScale = 1.25;
+const pixelsPerSecond = 120 * visualScale;
 const baseY = 200;
+const staffLineSpacing = 12 * visualScale;
+const notePitchSpacing = 6 * visualScale;
 
-function pitchToY(pitch) {
-  return baseY - (pitch - 62) * 6;
+function pitchToY(pitch, label) {
+  const pitchClass = ((pitch % 12) + 12) % 12;
+  const octave = Math.floor(pitch / 12) - 1;
+  const sharpNoteLetters = ["C", "C", "D", "D", "E", "F", "F", "G", "G", "A", "A", "B"];
+  const letter = /^[A-G]/i.exec(label)?.[0].toUpperCase() || sharpNoteLetters[pitchClass];
+  const diatonicPosition = octave * 7 + "CDEFGAB".indexOf(letter);
+  const bottomLinePosition = 4 * 7 + "CDEFGAB".indexOf("E");
+  return baseY - (diatonicPosition - bottomLinePosition) * notePitchSpacing;
 }
 
 // --- Helper function to draw rounded rectangles ---
@@ -258,11 +267,14 @@ function draw() {
   }
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, baseY - 4 * staffLineSpacing, canvas.width, 4 * staffLineSpacing);
 
   // --- Staff lines ---
   ctx.strokeStyle = "#000";
+  ctx.lineWidth = visualScale;
   for (let i = 0; i < 5; i++) {
-    const y = baseY - i * 12;
+    const y = baseY - i * staffLineSpacing;
     ctx.beginPath();
     ctx.moveTo(0, y);
     ctx.lineTo(canvas.width, y);
@@ -277,13 +289,13 @@ function draw() {
   const firstMeasure = Math.floor(firstBeat / measureLength);
   const lastMeasure = Math.ceil(lastBeat / measureLength);
 
-  ctx.font = "12px sans-serif";
+  ctx.font = `${12 * visualScale}px sans-serif`;
   for (let measure = firstMeasure; measure <= lastMeasure; measure++) {
     const measureBeat = measure * measureLength;
     const measureX = canvas.width / 3 + (measureBeat * noteUnitSeconds - now) * pixelsPerSecond;
 
     ctx.strokeStyle = "#9ca3af";
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 2 * visualScale;
     ctx.beginPath();
     ctx.moveTo(measureX, 0);
     ctx.lineTo(measureX, canvas.height);
@@ -291,7 +303,7 @@ function draw() {
 
     if (measure >= 0) {
       ctx.fillStyle = "#4b5563";
-      ctx.fillText(`Measure ${measure + 1}`, measureX + 4, 95);
+      ctx.fillText(`Measure ${measure + 1}`, measureX + 4 * visualScale, baseY - (baseY - 95) * visualScale);
     }
 
 
@@ -302,20 +314,21 @@ function draw() {
     const noteStart = note.start * noteUnitSeconds;
     const noteDuration = note.duration * noteUnitSeconds;
     const x = canvas.width / 3 + (noteStart - now) * pixelsPerSecond;
-    const y = pitchToY(note.pitch);
+    const h = 10 * visualScale;
+    const y = pitchToY(note.pitch, note.label) - h / 2;
     const w = noteDuration * pixelsPerSecond;
-    const h = 20;
 
     ctx.fillStyle = getFingerColor(note.finger);
-    roundedRect(x, y, w, h, 6);
+    roundedRect(x, y, w, h, 3 * visualScale);
 
-    ctx.fillStyle = "#000";
-    ctx.font = "12px sans-serif";
-    ctx.fillText(note.label, x + 5, y + 14);
+    ctx.fillStyle = "#fff";
+    ctx.font = `${9 * visualScale}px sans-serif`;
+    ctx.fillText(note.label, x + 5 * visualScale, y + h / 2 + 3 * visualScale);
   });
 
   // --- Playhead line ---
   ctx.strokeStyle = "lime";
+  ctx.lineWidth = visualScale;
   ctx.beginPath();
   ctx.moveTo(canvas.width / 3, 0);
   ctx.lineTo(canvas.width / 3, canvas.height);

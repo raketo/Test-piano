@@ -18,7 +18,10 @@
         { "pitch": 62, "start": 2, "duration": 2, "finger": 2, "label": "D" },
         { "pitch": 64, "start": 4, "duration": 2, "finger": 3, "label": "E" },
         { "pitch": 65, "start": 6, "duration": 2, "finger": 4, "label": "F" },
-        { "pitch": 67, "start": 8, "duration": 4, "finger": 5, "label": "G" }
+        { "pitch": 67, "start": 8, "duration": 2, "finger": 5, "label": "G" },
+        { "pitch": 69, "start": 10, "duration": 2, "finger": 4, "label": "A" },
+        { "pitch": 71, "start": 12, "duration": 2, "finger": 3, "label": "B" },
+        { "pitch": 72, "start": 14, "duration": 2, "finger": 1, "label": "C" }
       ]
     },
     {
