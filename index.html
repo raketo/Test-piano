@@ -50,6 +50,10 @@
       color: #333;
       font-weight: bold;
     }
+    .track-info {
+      font-size: 14px;
+      color: #333;
+    }
     #speedSelector {
       padding: 10px 15px;
       font-size: 16px;
@@ -75,6 +79,7 @@
   <select id="trackSelector">
     <option value="">Loading tracks...</option>
   </select>
+  <span id="trackInfo" class="track-info"></span>
   <span class="speed-label" style="margin-left: 20px;">Speed:</span>
   <select id="speedSelector">
     <option value="30">30%</option>
@@ -108,6 +113,7 @@ const ctx = canvas.getContext("2d");
 const resetBtn = document.getElementById("resetBtn");
 const pauseBtn = document.getElementById("pauseBtn");
 const trackSelector = document.getElementById("trackSelector");
+const trackInfo = document.getElementById("trackInfo");
 const speedSelector = document.getElementById("speedSelector");
 
 // --- State ---
@@ -124,6 +130,8 @@ resize();
 let allTracks = [];
 let fingerColors = {};
 let notes = [];
+let noteUnitSeconds = 0.5;
+let selectedTimeSignature = { top: 4, bottom: 4 };
 
 // Load tracks from JSON file
 async function loadTracks() {
@@ -161,6 +169,11 @@ function selectTrack(trackId) {
   const selectedTrack = allTracks.find(t => t.id === trackId);
   if (selectedTrack) {
     notes = [...selectedTrack.notes];
+    const bpm = selectedTrack.bpm ?? 120;
+    const timeSignature = selectedTrack.timeSignature ?? { top: 4, bottom: 4 };
+    selectedTimeSignature = timeSignature;
+    noteUnitSeconds = 60 / bpm * 4 / timeSignature.bottom;
+    trackInfo.textContent = `${bpm} BPM (quarter note) · ${timeSignature.top}/${timeSignature.bottom}`;
     resetAnimation();
   }
 }
@@ -185,7 +198,7 @@ const pixelsPerSecond = 120;
 const baseY = 200;
 
 function pitchToY(pitch) {
-  return baseY - (pitch - 60) * 6;
+  return baseY - (pitch - 62) * 6;
 }
 
 // --- Helper function to draw rounded rectangles ---
@@ -210,8 +223,8 @@ let pausedTime = 0;
 let isPaused = false;
 
 function resetAnimation() {
-  // Start 2 seconds before 0 to give player preparation time
-  startTime = performance.now() - (2 / speedMultiplier) * 1000;
+  // Begin the timeline 2 seconds before the track starts.
+  startTime = performance.now() + (2 / speedMultiplier) * 1000;
   pausedTime = 0;
   isPaused = false;
   pauseBtn.textContent = "Pause";
@@ -256,11 +269,41 @@ function draw() {
     ctx.stroke();
   }
 
+  // --- Measure grid ---
+  const measureLength = selectedTimeSignature.top;
+  const currentBeat = now / noteUnitSeconds;
+  const firstBeat = Math.floor((currentBeat - canvas.width / 3 / (pixelsPerSecond * noteUnitSeconds)) / measureLength) * measureLength;
+  const lastBeat = currentBeat + (canvas.width - canvas.width / 3) / (pixelsPerSecond * noteUnitSeconds);
+  const firstMeasure = Math.floor(firstBeat / measureLength);
+  const lastMeasure = Math.ceil(lastBeat / measureLength);
+
+  ctx.font = "12px sans-serif";
+  for (let measure = firstMeasure; measure <= lastMeasure; measure++) {
+    const measureBeat = measure * measureLength;
+    const measureX = canvas.width / 3 + (measureBeat * noteUnitSeconds - now) * pixelsPerSecond;
+
+    ctx.strokeStyle = "#9ca3af";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(measureX, 0);
+    ctx.lineTo(measureX, canvas.height);
+    ctx.stroke();
+
+    if (measure >= 0) {
+      ctx.fillStyle = "#4b5563";
+      ctx.fillText(`Measure ${measure + 1}`, measureX + 4, 95);
+    }
+
+
+  }
+
   // --- Notes ---
   notes.forEach(note => {
-    const x = canvas.width / 3 + (note.start - now) * pixelsPerSecond;
+    const noteStart = note.start * noteUnitSeconds;
+    const noteDuration = note.duration * noteUnitSeconds;
+    const x = canvas.width / 3 + (noteStart - now) * pixelsPerSecond;
     const y = pitchToY(note.pitch);
-    const w = note.duration * pixelsPerSecond;
+    const w = noteDuration * pixelsPerSecond;
     const h = 20;
 
     ctx.fillStyle = getFingerColor(note.finger);
