@@ -168,7 +168,12 @@ function populateTrackSelector() {
 function selectTrack(trackId) {
   const selectedTrack = allTracks.find(t => t.id === trackId);
   if (selectedTrack) {
-    notes = [...selectedTrack.notes];
+    const rightHandNotes = selectedTrack.rightHandNotes ?? selectedTrack.notes ?? [];
+    const leftHandNotes = selectedTrack.leftHandNotes ?? [];
+    notes = [
+      ...rightHandNotes.map(note => ({ ...note, hand: "right" })),
+      ...leftHandNotes.map(note => ({ ...note, hand: "left" }))
+    ];
     const bpm = selectedTrack.bpm ?? 120;
     const timeSignature = selectedTrack.timeSignature ?? { top: 4, bottom: 4 };
     selectedTimeSignature = timeSignature;
@@ -196,18 +201,20 @@ speedSelector.addEventListener("change", (e) => {
 // --- Mapping ---
 const visualScale = 1.25;
 const pixelsPerSecond = 120 * visualScale;
-const baseY = 200;
 const staffLineSpacing = 12 * visualScale;
 const notePitchSpacing = 6 * visualScale;
 
-function pitchToY(pitch, label) {
+function pitchToY(pitch, label, hand, staffBottomY) {
   const pitchClass = ((pitch % 12) + 12) % 12;
   const octave = Math.floor(pitch / 12) - 1;
   const sharpNoteLetters = ["C", "C", "D", "D", "E", "F", "F", "G", "G", "A", "A", "B"];
   const letter = /^[A-G]/i.exec(label)?.[0].toUpperCase() || sharpNoteLetters[pitchClass];
   const diatonicPosition = octave * 7 + "CDEFGAB".indexOf(letter);
-  const bottomLinePosition = 4 * 7 + "CDEFGAB".indexOf("E");
-  return baseY - (diatonicPosition - bottomLinePosition) * notePitchSpacing;
+  const bottomLinePitch = hand === "left" ? 43 : 64;
+  const bottomLineLetter = hand === "left" ? "G" : "E";
+  const bottomLineOctave = Math.floor(bottomLinePitch / 12) - 1;
+  const bottomLinePosition = bottomLineOctave * 7 + "CDEFGAB".indexOf(bottomLineLetter);
+  return staffBottomY - (diatonicPosition - bottomLinePosition) * notePitchSpacing;
 }
 
 // --- Helper function to draw rounded rectangles ---
@@ -266,20 +273,31 @@ function draw() {
     now = realTime * speedMultiplier;
   }
 
+  const upperStaffBottomY = canvas.height / 2 - 1.5 * staffLineSpacing;
+  const lowerStaffBottomY = canvas.height / 2 + 5.5 * staffLineSpacing;
+  const staffBottoms = [upperStaffBottomY, lowerStaffBottomY];
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "#fff";
-  ctx.fillRect(0, baseY - 4 * staffLineSpacing, canvas.width, 4 * staffLineSpacing);
+  staffBottoms.forEach(staffBottomY => {
+    ctx.fillRect(0, staffBottomY - 4 * staffLineSpacing, canvas.width, 4 * staffLineSpacing);
+  });
 
   // --- Staff lines ---
   ctx.strokeStyle = "#000";
   ctx.lineWidth = visualScale;
-  for (let i = 0; i < 5; i++) {
-    const y = baseY - i * staffLineSpacing;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(canvas.width, y);
-    ctx.stroke();
-  }
+  staffBottoms.forEach(staffBottomY => {
+    for (let i = 0; i < 5; i++) {
+      const y = staffBottomY - i * staffLineSpacing;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(canvas.width, y);
+      ctx.stroke();
+    }
+  });
+
+
+  
 
   // --- Measure grid ---
   const measureLength = selectedTimeSignature.top;
@@ -303,7 +321,7 @@ function draw() {
 
     if (measure >= 0) {
       ctx.fillStyle = "#4b5563";
-      ctx.fillText(`Measure ${measure + 1}`, measureX + 4 * visualScale, baseY - (baseY - 95) * visualScale);
+      ctx.fillText(`Measure ${measure + 1}`, measureX + 4 * visualScale, upperStaffBottomY - 4 * staffLineSpacing - 5 * visualScale);
     }
 
 
@@ -315,7 +333,8 @@ function draw() {
     const noteDuration = note.duration * noteUnitSeconds;
     const x = canvas.width / 3 + (noteStart - now) * pixelsPerSecond;
     const h = 10 * visualScale;
-    const y = pitchToY(note.pitch, note.label) - h / 2;
+    const staffBottomY = note.hand === "left" ? lowerStaffBottomY : upperStaffBottomY;
+    const y = pitchToY(note.pitch, note.label, note.hand, staffBottomY) - h / 2;
     const w = noteDuration * pixelsPerSecond;
 
     ctx.fillStyle = getFingerColor(note.finger);

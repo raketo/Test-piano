@@ -13,7 +13,7 @@
       "name": "Simple Scale",
       "bpm": 120,
       "timeSignature": { "top": 4, "bottom": 4 },
-      "notes": [
+      "rightHandNotes": [
         { "pitch": 60, "start": 0, "duration": 2, "finger": 1, "label": "C" },
         { "pitch": 62, "start": 2, "duration": 2, "finger": 2, "label": "D" },
         { "pitch": 64, "start": 4, "duration": 2, "finger": 3, "label": "E" },
@@ -22,6 +22,16 @@
         { "pitch": 69, "start": 10, "duration": 2, "finger": 4, "label": "A" },
         { "pitch": 71, "start": 12, "duration": 2, "finger": 3, "label": "B" },
         { "pitch": 72, "start": 14, "duration": 2, "finger": 1, "label": "C" }
+      ],
+      "leftHandNotes": [
+        { "pitch": 36, "start": 0, "duration": 2, "finger": 1, "label": "C" },
+        { "pitch": 38, "start": 2, "duration": 2, "finger": 2, "label": "D" },
+        { "pitch": 40, "start": 4, "duration": 2, "finger": 3, "label": "E" },
+        { "pitch": 41, "start": 6, "duration": 2, "finger": 4, "label": "F" },
+        { "pitch": 43, "start": 8, "duration": 2, "finger": 5, "label": "G" },
+        { "pitch": 45, "start": 10, "duration": 2, "finger": 4, "label": "A" },
+        { "pitch": 47, "start": 12, "duration": 2, "finger": 3, "label": "B" },
+        { "pitch": 48, "start": 14, "duration": 2, "finger": 1, "label": "C" }
       ]
     },
     {
