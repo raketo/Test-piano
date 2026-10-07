@@ -11,6 +11,23 @@
     }
     canvas {
       display: block;
+      touch-action: none;
+      cursor: grab;
+    }
+    canvas.is-scrubbing {
+      cursor: grabbing;
+    }
+    .scrub-hint {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 12px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.85);
+      color: #4b5563;
+      font-size: 14px;
+      pointer-events: none;
     }
     .controls {
       position: absolute;
@@ -106,6 +123,7 @@
   <button id="pauseBtn">Pause</button>
 </div>
 <canvas id="c"></canvas>
+<div class="scrub-hint">Drag left or right to seek</div>
 
 <script>
 const canvas = document.getElementById("c");
@@ -132,6 +150,7 @@ let fingerColors = {};
 let notes = [];
 let noteUnitSeconds = 0.5;
 let selectedTimeSignature = { top: 4, bottom: 4 };
+let trackDurationSeconds = 0;
 
 // Load tracks from JSON file
 async function loadTracks() {
@@ -178,6 +197,10 @@ function selectTrack(trackId) {
     const timeSignature = selectedTrack.timeSignature ?? { top: 4, bottom: 4 };
     selectedTimeSignature = timeSignature;
     noteUnitSeconds = 60 / bpm * 4 / timeSignature.bottom;
+    trackDurationSeconds = notes.reduce(
+      (duration, note) => Math.max(duration, (note.start + note.duration) * noteUnitSeconds),
+      0
+    );
     trackInfo.textContent = `${bpm} BPM (quarter note) · ${timeSignature.top}/${timeSignature.bottom}`;
     resetAnimation();
   }
@@ -261,32 +284,96 @@ function togglePause() {
 resetBtn.addEventListener("click", resetAnimation);
 pauseBtn.addEventListener("click", togglePause);
 
+function getCurrentTime() {
+  if (isPaused) {
+    return pausedTime;
+  }
+  return ((performance.now() - startTime) / 1000) * speedMultiplier;
+}
+
+let pointerStartX = 0;
+let pointerStartTime = 0;
+let wasPausedBeforeScrub = false;
+let activePointerId = null;
+let scrubStarted = false;
+let suppressNextCanvasClick = false;
+
+canvas.addEventListener("pointerdown", event => {
+  if (activePointerId !== null || (event.pointerType === "mouse" && event.button !== 0)) {
+    return;
+  }
+  activePointerId = event.pointerId;
+  pointerStartX = event.clientX;
+  pointerStartTime = getCurrentTime();
+  wasPausedBeforeScrub = isPaused;
+  scrubStarted = false;
+  canvas.setPointerCapture(event.pointerId);
+});
+
+canvas.addEventListener("pointermove", event => {
+  if (event.pointerId !== activePointerId) {
+    return;
+  }
+
+  const deltaX = event.clientX - pointerStartX;
+  if (!scrubStarted && Math.abs(deltaX) >= 4) {
+    scrubStarted = true;
+    isPaused = true;
+    pauseBtn.textContent = "Resume";
+    canvas.classList.add("is-scrubbing");
+  }
+  if (scrubStarted) {
+    pausedTime = Math.min(
+      trackDurationSeconds,
+      Math.max(0, pointerStartTime - deltaX / pixelsPerSecond)
+    );
+  }
+});
+
+function finishScrub(event) {
+  if (event.pointerId !== activePointerId) {
+    return;
+  }
+
+  if (scrubStarted) {
+    suppressNextCanvasClick = event.type === "pointerup";
+    canvas.classList.remove("is-scrubbing");
+    if (!wasPausedBeforeScrub) {
+      startTime = performance.now() - (pausedTime / speedMultiplier) * 1000;
+      isPaused = false;
+      pauseBtn.textContent = "Pause";
+    }
+  }
+  activePointerId = null;
+  scrubStarted = false;
+}
+
+canvas.addEventListener("pointerup", finishScrub);
+canvas.addEventListener("pointercancel", finishScrub);
+
 // Tap on canvas to pause/resume
-canvas.addEventListener("click", togglePause);
+canvas.addEventListener("click", () => {
+  if (suppressNextCanvasClick) {
+    suppressNextCanvasClick = false;
+    return;
+  }
+  togglePause();
+});
 
 function draw() {
-  let now;
-  if (isPaused) {
-    now = pausedTime;
-  } else {
-    const realTime = (performance.now() - startTime) / 1000;
-    now = realTime * speedMultiplier;
-  }
+  const now = getCurrentTime();
 
   const upperStaffBottomY = canvas.height / 2 - 1.5 * staffLineSpacing;
   const lowerStaffBottomY = canvas.height / 2 + 5.5 * staffLineSpacing;
   const staffBottoms = [upperStaffBottomY, lowerStaffBottomY];
+  const playheadX = canvas.width / 3;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = "#fff";
-  staffBottoms.forEach(staffBottomY => {
-    ctx.fillRect(0, staffBottomY - 4 * staffLineSpacing, canvas.width, 4 * staffLineSpacing);
-  });
-
-  // --- Staff lines ---
   ctx.strokeStyle = "#000";
   ctx.lineWidth = visualScale;
   staffBottoms.forEach(staffBottomY => {
+    ctx.fillRect(0, staffBottomY - 4 * staffLineSpacing, canvas.width, 4 * staffLineSpacing);
     for (let i = 0; i < 5; i++) {
       const y = staffBottomY - i * staffLineSpacing;
       ctx.beginPath();
@@ -296,21 +383,18 @@ function draw() {
     }
   });
 
-
-  
-
   // --- Measure grid ---
   const measureLength = selectedTimeSignature.top;
   const currentBeat = now / noteUnitSeconds;
-  const firstBeat = Math.floor((currentBeat - canvas.width / 3 / (pixelsPerSecond * noteUnitSeconds)) / measureLength) * measureLength;
-  const lastBeat = currentBeat + (canvas.width - canvas.width / 3) / (pixelsPerSecond * noteUnitSeconds);
+  const firstBeat = Math.floor((currentBeat - playheadX / (pixelsPerSecond * noteUnitSeconds)) / measureLength) * measureLength;
+  const lastBeat = currentBeat + (canvas.width - playheadX) / (pixelsPerSecond * noteUnitSeconds);
   const firstMeasure = Math.floor(firstBeat / measureLength);
   const lastMeasure = Math.ceil(lastBeat / measureLength);
 
   ctx.font = `${12 * visualScale}px sans-serif`;
   for (let measure = firstMeasure; measure <= lastMeasure; measure++) {
     const measureBeat = measure * measureLength;
-    const measureX = canvas.width / 3 + (measureBeat * noteUnitSeconds - now) * pixelsPerSecond;
+    const measureX = playheadX + (measureBeat * noteUnitSeconds - now) * pixelsPerSecond;
 
     ctx.strokeStyle = "#9ca3af";
     ctx.lineWidth = 2 * visualScale;
@@ -321,17 +405,15 @@ function draw() {
 
     if (measure >= 0) {
       ctx.fillStyle = "#4b5563";
-      ctx.fillText(`Measure ${measure + 1}`, measureX + 4 * visualScale, upperStaffBottomY - 4 * staffLineSpacing - 5 * visualScale);
+      ctx.fillText(`${measure + 1}`, measureX + 4 * visualScale, upperStaffBottomY - 4 * staffLineSpacing - 5 * visualScale);
     }
-
-
   }
 
   // --- Notes ---
   notes.forEach(note => {
     const noteStart = note.start * noteUnitSeconds;
     const noteDuration = note.duration * noteUnitSeconds;
-    const x = canvas.width / 3 + (noteStart - now) * pixelsPerSecond;
+    const x = playheadX + (noteStart - now) * pixelsPerSecond;
     const h = 10 * visualScale;
     const staffBottomY = note.hand === "left" ? lowerStaffBottomY : upperStaffBottomY;
     const y = pitchToY(note.pitch, note.label, note.hand, staffBottomY) - h / 2;
@@ -349,8 +431,8 @@ function draw() {
   ctx.strokeStyle = "lime";
   ctx.lineWidth = visualScale;
   ctx.beginPath();
-  ctx.moveTo(canvas.width / 3, 0);
-  ctx.lineTo(canvas.width / 3, canvas.height);
+  ctx.moveTo(playheadX, 0);
+  ctx.lineTo(playheadX, canvas.height);
   ctx.stroke();
 
   requestAnimationFrame(draw);

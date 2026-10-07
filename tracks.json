@@ -46,32 +46,79 @@
         { "pitch": 72, "start": 3, "duration": 2, "finger": 4, "label": "C" }
       ]
     },
-    {"id":"faded_RH","name":"Faded - Right Hand","bpm": 120, "timeSignature": {"top": 4, "bottom": 4}, "notes":[
+    {"id":"faded_RH","name":"Faded - Right Hand","bpm": 90, "timeSignature": {"top": 4, "bottom": 4}, 
+    "notes":[
       {"pitch":67,"start":0,"duration":1,"finger":1,"label":"G"},
       {"pitch":67,"start":1,"duration":1,"finger":1,"label":"G"},
       {"pitch":67,"start":2,"duration":1,"finger":1,"label":"G"},
       {"pitch":71,"start":3,"duration":1,"finger":2,"label":"B"},
+
       {"pitch":76,"start":4,"duration":1,"finger":5,"label":"E"},
       {"pitch":76,"start":5,"duration":1,"finger":5,"label":"E"},
       {"pitch":76,"start":6,"duration":1,"finger":5,"label":"E"},
       {"pitch":74,"start":7,"duration":1,"finger":4,"label":"D"},
+      
       {"pitch":71,"start":8,"duration":1,"finger":2,"label":"B"},
       {"pitch":71,"start":9,"duration":1,"finger":2,"label":"B"},
       {"pitch":71,"start":10,"duration":1,"finger":2,"label":"B"},
       {"pitch":71,"start":11,"duration":1,"finger":2,"label":"B"},
+      
       {"pitch":66,"start":12,"duration":1,"finger":2,"label":"F#"},
       {"pitch":66,"start":13,"duration":1,"finger":2,"label":"F#"},
       {"pitch":66,"start":14,"duration":1,"finger":2,"label":"F#"},
-      {"pitch":64,"start":15,"duration":1,"finger":4,"label":"E"},
+      {"pitch":64,"start":15,"duration":1,"finger":1,"label":"E"},
 
-      {"pitch":67,"start":16,"duration":0.5,"finger":1,"label":"G"},
-      {"pitch":67,"start":16.5,"duration":0.5,"finger":1,"label":"G"},
-      {"pitch":64,"start":17,"duration":0.5,"finger":2,"label":"E"},
-      {"pitch":67,"start":17.5,"duration":0.5,"finger":1,"label":"G"},
-      {"pitch":64,"start":18,"duration":0.5,"finger":2,"label":"E"},
-      {"pitch":67,"start":18.5,"duration":0.5,"finger":1,"label":"G"},
-      {"pitch":69,"start":19,"duration":0.5,"finger":2,"label":"A"},
-      {"pitch":71,"start":19.5,"duration":1,"finger":3,"label":"B"}
+      {"pitch":67,"start":16.5,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":67,"start":17,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":64,"start":17.5,"duration":0.5,"finger":1,"label":"E"},
+      {"pitch":67,"start":18,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":64,"start":18.5,"duration":0.5,"finger":1,"label":"E"},
+      {"pitch":67,"start":19,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":69,"start":19.5,"duration":0.5,"finger":3,"label":"A"},
+
+      {"pitch":71,"start":20,"duration":1,"finger":4,"label":"B"},
+      {"pitch":71,"start":21,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":71,"start":21.5,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":71,"start":22,"duration":0.5,"finger":1,"label":"D"},
+
+      {"pitch":71,"start":22.5,"duration":3.5,"finger":4,"label":"B"},
+      {"pitch":71,"start":26.5,"duration":0.5,"finger":3,"label":"G"},
+      {"pitch":71,"start":27,"duration":0.5,"finger":3,"label":"G"},
+      {"pitch":71,"start":27.5,"duration":0.5,"finger":3,"label":"G"},
+
+      {"pitch":71,"start":28,"duration":1.5,"finger":2,"label":"F#"},
+      {"pitch":71,"start":29.5,"duration":0.5,"finger":2,"label":"F#"},
+      {"pitch":71,"start":30,"duration":0.5,"finger":2,"label":"F#"},
+      {"pitch":71,"start":30.5,"duration":0.5,"finger":1,"label":"E"},
+      {"pitch":71,"start":31,"duration":1,"finger":3,"label":"G"},
+
+      {"pitch":67,"start":32.5,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":67,"start":33,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":64,"start":33.5,"duration":0.5,"finger":1,"label":"E"},
+      {"pitch":67,"start":34,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":64,"start":34.5,"duration":0.5,"finger":1,"label":"E"},
+      {"pitch":67,"start":35,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":69,"start":35.5,"duration":0.5,"finger":3,"label":"A"},
+
+      {"pitch":71,"start":36,"duration":1,"finger":4,"label":"B"},
+      {"pitch":71,"start":37,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":71,"start":37.5,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":71,"start":38,"duration":0.5,"finger":1,"label":"D"},
+
+      {"pitch":71,"start":38.5,"duration":3.5,"finger":4,"label":"B"},
+      {"pitch":71,"start":42.5,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":71,"start":43,"duration":0.5,"finger":2,"label":"G"},
+      {"pitch":71,"start":43.5,"duration":2.5,"finger":3,"label":"A"},
+
+      {"pitch":71,"start":46.5,"duration":0.5,"finger":4,"label":"B"},
+      {"pitch":71,"start":47,"duration":0.5,"finger":4,"label":"B"},
+      {"pitch":71,"start":47.5,"duration":0.5,"finger":4,"label":"B"},
+
+      {"pitch":71,"start":48,"duration":1,"finger":2,"label":"G"},
+      {"pitch":71,"start":48,"duration":1,"finger":4,"label":"B"},
+      {"pitch":71,"start":49,"duration":1,"finger":2,"label":"G"},
+      {"pitch":71,"start":50,"duration":1,"finger":2,"label":"G"},
+      {"pitch":71,"start":51,"duration":1,"finger":4,"label":"B"}
     ]
   },
   {"id":"two_raven_part3_rh","name":"Two raven - part 3 - RH" ,"bpm": 120, "timeSignature": {"top": 3, "bottom": 4}, "notes":[
